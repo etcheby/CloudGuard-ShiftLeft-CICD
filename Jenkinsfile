@@ -49,7 +49,7 @@ pipeline {
           }
            
            
-          stage('webapp Docker image Build and scan prep') {
+          stage('Docker Image Build and Image Scan Prep') {
              
             steps {
 
@@ -75,7 +75,7 @@ pipeline {
              }
           }
             
-       stage('Container image approval request') {
+       stage('Container Image Scan Approval Request') {
      
            steps {
              script {
@@ -84,7 +84,7 @@ pipeline {
             }
           }
         
-      stage('Terraform config policy Scan') {    
+      stage('Terraform IaC Assessment') {    
            
             steps {
          
