@@ -71,5 +71,5 @@ jobs:
     inputs:
       script: |
         git clone https://github.com/cr0hn/vulnerable-node
-        ./shiftleft sourceguard -s ./vulnerable-node
+        ./shiftleft code-scan -s ./vulnerable-node
     displayName: Running Source Code scan
