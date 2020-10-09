@@ -1,0 +1,75 @@
+# This is a Check Point CloudGuard ShiftLeft Demo pipeline
+# In this pipeline we will run through a terraform scan, container image scan
+# and a repository scan.
+
+jobs:
+- job:  ContainerImageScan
+  pool:
+    vmImage: 'ubuntu-latest'
+
+  steps:
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: '17.09.0-ce'
+    displayName: Installing Docker
+  - task: CmdLine@2
+    inputs:
+      script: |
+        curl -G https://shiftleft-prod.s3.amazonaws.com/blades/shiftleft/bin/linux/amd64/0.0.27/shiftleft -o shiftleft
+        chmod +x shiftleft
+    displayName: Install ShiftLeft
+  - task: CmdLine@2
+    env:
+      #Need to map secret variable to environment variables
+      SG_CLIENT_ID: $(SG_CLIENT_ID)
+      SG_SECRET_KEY: $(SG_SECRET_KEY)
+    inputs:
+      script: |
+        docker pull vulnerables/web-dvwa
+        docker save -o web-dvwa.tar vulnerables/web-dvwa
+        ./shiftleft image-scan -i ./web-dvwa.tar
+    displayName: Running Container Image scan
+
+- job: TerraformScan
+  pool:
+    vmImage: 'ubuntu-latest'
+  
+  steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        curl -G https://shiftleft-prod.s3.amazonaws.com/blades/shiftleft/bin/linux/amd64/0.0.27/shiftleft -o shiftleft
+        chmod +x shiftleft
+    displayName: Install ShiftLeft
+  - task: CmdLine@2
+    env:
+    #Map secret variables to environment variables
+      CHKP_CLOUDGUARD_ID: $(CHKP_CLOUDGUARD_ID)
+      CHKP_CLOUDGUARD_SECRET: $(CHKP_CLOUDGUARD_SECRET)
+    inputs:
+      script: |
+        git clone https://github.com/chkp-ivanmar/openshift-public-clouds
+        ./shiftleft iac-assessment -p ./openshift-public-clouds/aws/terraform/ -r -64 |jq .
+    displayName: Running Terraform Assessment
+
+- job: SourceCodeScanning
+  pool:
+    vmImage: 'ubuntu-latest'
+  
+  steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        curl -G https://shiftleft-prod.s3.amazonaws.com/blades/shiftleft/bin/linux/amd64/0.0.27/shiftleft -o shiftleft
+        chmod +x shiftleft
+    displayName: Install ShiftLeft
+  - task: CmdLine@2
+    env:
+      #Map secret variables to environment variables
+      SG_CLIENT_ID: $(SG_CLIENT_ID)
+      SG_SECRET_KEY: $(SG_SECRET_KEY)
+    inputs:
+      script: |
+        git clone https://github.com/cr0hn/vulnerable-node
+        ./shiftleft sourceguard -s ./vulnerable-node
+    displayName: Running Source Code scan
