@@ -21,8 +21,8 @@ jobs:
   - task: CmdLine@2
     env:
       #Need to map secret variable to environment variables
-      SG_CLIENT_ID: $(SG_CLIENT_ID)
-      SG_SECRET_KEY: $(SG_SECRET_KEY)
+      CHKP_CLOUDGUARD_ID: $(CHKP_CLOUDGUARD_ID)
+      CHKP_CLOUDGUARD_SECRET: $(CHKP_CLOUDGUARD_SECRET)
     inputs:
       script: |
         docker pull vulnerables/web-dvwa
@@ -66,8 +66,8 @@ jobs:
   - task: CmdLine@2
     env:
       #Map secret variables to environment variables
-      SG_CLIENT_ID: $(SG_CLIENT_ID)
-      SG_SECRET_KEY: $(SG_SECRET_KEY)
+      CHKP_CLOUDGUARD_ID: $(CHKP_CLOUDGUARD_ID)
+      CHKP_CLOUDGUARD_SECRET: $(CHKP_CLOUDGUARD_SECRET)
     inputs:
       script: |
         git clone https://github.com/cr0hn/vulnerable-node
